@@ -13,7 +13,7 @@ public:
     explicit Interface(std::string_view name_interface);
      ~Interface() override = default;
 
-    IPacket read() override;
+    void read() override;
     void write(IPacket const &packet) override;
 
 private:

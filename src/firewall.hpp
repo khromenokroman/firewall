@@ -8,6 +8,8 @@ public:
     Firewall(std::shared_ptr<IInterface> interface_input, std::shared_ptr<IInterface> interface_output);
     ~Firewall() = default;
 
+    void run();
+
 private:
     std::shared_ptr<IInterface> m_interface_input;
     std::shared_ptr<IInterface> m_interface_output;
