@@ -17,7 +17,7 @@ Interface::Interface(std::string_view name_interface) :
 
     ::fmt::print("Open device: {}\n", name_interface);
 }
-void packet_handler(u_char *, const struct pcap_pkthdr *pkthdr, u_char const *packet) {
+void packet_handler(u_char *, pcap_pkthdr const *pkthdr, u_char const *packet) {
     ::fmt::print("===== INFO PACKET L2 =====\n", pkthdr->len);
     ::fmt::print("Packet bytes: {}\n", pkthdr->len);
 
@@ -30,7 +30,31 @@ void packet_handler(u_char *, const struct pcap_pkthdr *pkthdr, u_char const *pa
     if (ether_type == ETHERTYPE_ARP) {
         ::fmt::print("(ARP) ether_type: {:#06x}\n", ether_type);
     }
-    ::fmt::print("===== END L2 =====\n", pkthdr->len);
+
+    std::array<uint8_t, 6> mac_src{};
+    memcpy(mac_src.data(), l2_header->ether_shost, sizeof l2_header->ether_shost);
+    ::fmt::print("MAC SRC: ");
+    for (auto const &byte: mac_src) {
+        ::fmt::print("{:02x}", byte);
+        if (&byte != &mac_src.back()) {
+            ::fmt::print(":");
+        }
+    }
+    ::fmt::print("\n");
+
+    std::array<uint8_t, 6> mac_dst{};
+    memcpy(mac_dst.data(), l2_header->ether_dhost, sizeof l2_header->ether_dhost);
+    ::fmt::print("MAC DST: ");
+    for (auto &byte: mac_dst) {
+        ::fmt::print("{:02x}", byte);
+        if (&byte != &mac_dst.back()) {
+            ::fmt::print(":");
+        }
+    }
+    ::fmt::print("\n");
+
+    ::fmt::print("===== END L2 =====\n");
+
 }
 
 void Interface::read() { pcap_loop(m_raw_interface.get(), 0, packet_handler, NULL); }
